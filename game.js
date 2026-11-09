@@ -1,6 +1,8 @@
-import * as L from "./logic.js";
-import { unlock, sfx, music, toggleMute, isMuted } from "./audio.js";
-import * as store from "./store.js";
+(() => {
+"use strict";
+const L = globalThis.TetrisLogic;
+const { unlock, sfx, music, toggleMute, isMuted } = globalThis.TetrisAudio;
+const store = globalThis.TetrisStore;
 
 const COLORS = { I: "#ef6f6c", O: "#3fb8af", T: "#e9c46a", S: "#7b6cf6", Z: "#f28dc4", J: "#8fd694", L: "#5aa9e6" };
 const LOCK_DELAY = 500;
@@ -412,3 +414,4 @@ requestAnimationFrame((t) => {
   last = t;
   frame(t);
 });
+})();

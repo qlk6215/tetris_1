@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import * as L from "../logic.js";
+import "../logic.js";
+const L = globalThis.TetrisLogic;
 
 test("rotate: 시계 방향 4번이면 원래 모양", () => {
   let s = L.SHAPES.T;

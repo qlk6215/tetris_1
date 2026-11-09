@@ -1,3 +1,6 @@
+// 일반 <script>로 로드 (file:// 더블클릭 실행 지원). 전역 TetrisAudio 로 노출한다.
+(() => {
+"use strict";
 // 배경음·효과음 모두 Web Audio로 합성한다 (외부 음원 없음 → 라이선스 문제 없음).
 let ctx = null;
 let master, musicGain, sfxGain;
@@ -9,7 +12,7 @@ try {
 }
 
 // 브라우저 정책상 사용자 입력(클릭/키) 이후에만 소리를 낼 수 있다
-export function unlock() {
+function unlock() {
   if (!ctx) {
     ctx = new (window.AudioContext || window.webkitAudioContext)();
     master = ctx.createGain();
@@ -25,8 +28,8 @@ export function unlock() {
   if (ctx.state === "suspended") ctx.resume();
 }
 
-export const isMuted = () => muted;
-export function toggleMute() {
+const isMuted = () => muted;
+function toggleMute() {
   muted = !muted;
   if (master) master.gain.value = muted ? 0 : 1;
   try {
@@ -59,7 +62,7 @@ const fx = (fn) => {
 const arp = (notes, step, opts) =>
   fx((t) => notes.forEach((n, i) => tone(hz(n), t + i * step, step * 1.6, opts)));
 
-export const sfx = {
+const sfx = {
   move: () => fx((t) => tone(620, t, 0.035, { gain: 0.12 })),
   rotate: () => fx((t) => tone(840, t, 0.06, { type: "triangle", gain: 0.22, slideTo: 1180 })),
   lock: () => fx((t) => tone(170, t, 0.09, { type: "triangle", gain: 0.35 })),
@@ -92,7 +95,7 @@ function schedule() {
   }
 }
 
-export const music = {
+const music = {
   start() {
     if (!ctx || timer) return;
     step = 0;
@@ -104,3 +107,6 @@ export const music = {
     timer = null;
   },
 };
+
+globalThis.TetrisAudio = { unlock, isMuted, toggleMute, sfx, music };
+})();

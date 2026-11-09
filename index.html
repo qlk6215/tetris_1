@@ -6,7 +6,12 @@
     <title>블록 낙하</title>
     <meta name="description" content="웹에서 바로 즐기는 낙하 블록 퍼즐 게임" />
     <link rel="stylesheet" href="style.css" />
-    <script type="module" src="game.js"></script>
+    <!-- 일반 스크립트(모듈 아님): index.html 더블클릭(file://)으로도 실행되게 함. 순서 중요 -->
+    <script defer src="config.js"></script>
+    <script defer src="logic.js"></script>
+    <script defer src="audio.js"></script>
+    <script defer src="store.js"></script>
+    <script defer src="game.js"></script>
   </head>
   <body>
     <header class="top">

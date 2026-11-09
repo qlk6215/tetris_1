@@ -1,6 +1,9 @@
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./config.js";
+// 일반 <script>로 로드 (file:// 더블클릭 실행 지원). 전역 TetrisStore 로 노출한다.
+(() => {
+"use strict";
+const { SUPABASE_URL, SUPABASE_ANON_KEY } = globalThis.TETRIS_CONFIG;
 
-export const isRemote = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
+const isRemote = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 
 const SCORES = "tetris_1_scores";
 const FEEDBACK = "tetris_1_feedback";
@@ -48,15 +51,18 @@ async function insert(table, row) {
   writeLocal(table, [...readLocal(table), { ...row, created_at: new Date().toISOString() }]);
 }
 
-export const saveScore = (row) => insert(SCORES, row);
-export const saveFeedback = (row) => insert(FEEDBACK, row);
+const saveScore = (row) => insert(SCORES, row);
+const saveFeedback = (row) => insert(FEEDBACK, row);
 
-export async function topScores(limit = 10) {
+async function topScores(limit = 10) {
   if (isRemote) return rest(`${SCORES}?select=name,score,lines,level,created_at&order=score.desc&limit=${limit}`);
   return readLocal(SCORES).sort((a, b) => b.score - a.score).slice(0, limit);
 }
 
-export async function recentFeedback(limit = 20) {
+async function recentFeedback(limit = 20) {
   if (isRemote) return rest(`${FEEDBACK}?select=name,message,created_at&order=created_at.desc&limit=${limit}`);
   return readLocal(FEEDBACK).reverse().slice(0, limit);
 }
+
+globalThis.TetrisStore = { isRemote, saveScore, saveFeedback, topScores, recentFeedback };
+})();
