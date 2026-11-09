@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>블록 낙하</title>
+    <meta name="description" content="웹에서 바로 즐기는 낙하 블록 퍼즐 게임" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="module" src="game.js"></script>
+  </head>
+  <body>
+    <header class="top">
+      <h1>블록 낙하</h1>
+      <button id="mute" type="button" class="ghost" aria-pressed="false">소리 끄기</button>
+    </header>
+
+    <main class="layout">
+      <section class="play" aria-label="게임">
+        <div class="board-wrap">
+          <canvas id="board" aria-label="게임 보드"></canvas>
+          <div id="overlay" class="overlay">
+            <p id="overlay-title" class="overlay-title">블록 낙하</p>
+            <button id="start" type="button" class="primary">시작하기</button>
+            <p class="hint">Enter로도 시작할 수 있어요</p>
+          </div>
+        </div>
+
+        <aside class="side">
+          <dl class="stats">
+            <div><dt>점수</dt><dd id="score" class="num">0</dd></div>
+            <div><dt>줄</dt><dd id="lines" class="num">0</dd></div>
+            <div><dt>레벨</dt><dd id="level" class="num">1</dd></div>
+          </dl>
+          <div class="next">
+            <h2>다음</h2>
+            <canvas id="next" aria-label="다음 블록"></canvas>
+          </div>
+          <ul class="keys">
+            <li><kbd>←</kbd><kbd>→</kbd> 이동</li>
+            <li><kbd>↑</kbd><kbd>X</kbd> 회전 · <kbd>Z</kbd> 반대 회전</li>
+            <li><kbd>↓</kbd> 빠르게 · <kbd>Space</kbd> 바로 내리기</li>
+            <li><kbd>P</kbd> 일시정지 · <kbd>M</kbd> 소리</li>
+          </ul>
+        </aside>
+
+        <div class="touch" aria-label="터치 조작">
+          <button type="button" data-action="left" aria-label="왼쪽">←</button>
+          <button type="button" data-action="cw" aria-label="회전">⟳</button>
+          <button type="button" data-action="right" aria-label="오른쪽">→</button>
+          <button type="button" data-action="soft" aria-label="빠르게 내리기">↓</button>
+          <button type="button" data-action="drop" aria-label="바로 내리기">⤓</button>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="rank-title">
+        <h2 id="rank-title">랭킹 TOP 10</h2>
+        <ol id="scores" class="scores"></ol>
+        <p id="storage-note" class="muted small">지금은 기록이 이 브라우저에만 저장됩니다.</p>
+      </section>
+
+      <section class="panel" aria-labelledby="fb-title">
+        <h2 id="fb-title">피드백</h2>
+        <form id="feedback-form" class="fb-form">
+          <label>이름 <input id="fb-name" maxlength="20" placeholder="익명" autocomplete="nickname" /></label>
+          <label>
+            의견
+            <textarea id="fb-message" maxlength="500" rows="3" required placeholder="게임에 대한 의견을 남겨 주세요"></textarea>
+          </label>
+          <button type="submit" class="primary">보내기</button>
+          <p id="fb-status" class="small" role="status"></p>
+        </form>
+        <ul id="feedback-list" class="fb-list"></ul>
+      </section>
+    </main>
+
+    <dialog id="gameover">
+      <form id="score-form" method="dialog">
+        <h2>게임 오버</h2>
+        <p>점수 <strong id="final-score" class="num">0</strong></p>
+        <label>이름 <input id="player-name" maxlength="20" placeholder="익명" autocomplete="nickname" /></label>
+        <p id="save-error" class="error small" role="alert"></p>
+        <div class="row">
+          <button type="submit" value="skip" class="ghost">건너뛰기</button>
+          <button id="save-score" type="submit" value="save" class="primary">점수 저장</button>
+        </div>
+      </form>
+    </dialog>
+  </body>
+</html>
