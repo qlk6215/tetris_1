@@ -26,6 +26,10 @@ create index if not exists tetris_1_feedback_created_idx on public.tetris_1_feed
 alter table public.tetris_1_scores enable row level security;
 alter table public.tetris_1_feedback enable row level security;
 
+-- Data API(REST)로 접근할 수 있게 권한을 명시한다 (실제 허용 범위는 아래 RLS 정책이 결정)
+grant select, insert on public.tetris_1_scores to anon, authenticated;
+grant select, insert on public.tetris_1_feedback to anon, authenticated;
+
 drop policy if exists "tetris_1_scores_select" on public.tetris_1_scores;
 create policy "tetris_1_scores_select" on public.tetris_1_scores
   for select to anon, authenticated using (true);

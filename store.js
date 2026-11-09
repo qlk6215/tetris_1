@@ -5,11 +5,28 @@ export const isRemote = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 const SCORES = "tetris_1_scores";
 const FEEDBACK = "tetris_1_feedback";
 
-let clientPromise = null;
-const client = () =>
-  (clientPromise ??= import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm").then((m) =>
-    m.createClient(SUPABASE_URL, SUPABASE_ANON_KEY),
-  ));
+// Supabase REST(PostgREST)를 직접 호출한다 — 라이브러리 없이 publishable/anon 키 모두 동작
+async function rest(path, { method = "GET", body } = {}) {
+  const headers = { apikey: SUPABASE_ANON_KEY, "Content-Type": "application/json" };
+  // 예전 형식(JWT) anon 키만 Authorization 헤더에도 넣는다 (publishable 키는 넣으면 거부됨)
+  if (SUPABASE_ANON_KEY.startsWith("eyJ")) headers.Authorization = `Bearer ${SUPABASE_ANON_KEY}`;
+  if (method === "POST") headers.Prefer = "return=minimal";
+  const res = await fetch(`${SUPABASE_URL.replace(/\/$/, "")}/rest/v1/${path}`, {
+    method,
+    headers,
+    body: body && JSON.stringify(body),
+  });
+  if (!res.ok) {
+    let msg = `${res.status} ${res.statusText}`;
+    try {
+      msg = (await res.json()).message ?? msg;
+    } catch {
+      /* 본문 없음 */
+    }
+    throw new Error(msg);
+  }
+  return method === "GET" ? res.json() : null;
+}
 
 function readLocal(key) {
   try {
@@ -27,11 +44,7 @@ function writeLocal(key, rows) {
 }
 
 async function insert(table, row) {
-  if (isRemote) {
-    const { error } = await (await client()).from(table).insert(row);
-    if (error) throw error;
-    return;
-  }
+  if (isRemote) return rest(table, { method: "POST", body: row });
   writeLocal(table, [...readLocal(table), { ...row, created_at: new Date().toISOString() }]);
 }
 
@@ -39,27 +52,11 @@ export const saveScore = (row) => insert(SCORES, row);
 export const saveFeedback = (row) => insert(FEEDBACK, row);
 
 export async function topScores(limit = 10) {
-  if (isRemote) {
-    const { data, error } = await (await client())
-      .from(SCORES)
-      .select("name, score, lines, level, created_at")
-      .order("score", { ascending: false })
-      .limit(limit);
-    if (error) throw error;
-    return data;
-  }
+  if (isRemote) return rest(`${SCORES}?select=name,score,lines,level,created_at&order=score.desc&limit=${limit}`);
   return readLocal(SCORES).sort((a, b) => b.score - a.score).slice(0, limit);
 }
 
 export async function recentFeedback(limit = 20) {
-  if (isRemote) {
-    const { data, error } = await (await client())
-      .from(FEEDBACK)
-      .select("name, message, created_at")
-      .order("created_at", { ascending: false })
-      .limit(limit);
-    if (error) throw error;
-    return data;
-  }
+  if (isRemote) return rest(`${FEEDBACK}?select=name,message,created_at&order=created_at.desc&limit=${limit}`);
   return readLocal(FEEDBACK).reverse().slice(0, limit);
 }
